@@ -1,185 +1,222 @@
-window.addEventListener("load", () => {
-  let num = document.getElementById("num");
-  let formCrear = document.getElementById("formNum");
-  parseInt(num);
+class Converter {
+  constructor() {
+    this.units = [
+      "cero",
+      "uno",
+      "dos",
+      "tres",
+      "cuatro",
+      "cinco",
+      "seis",
+      "siete",
+      "ocho",
+      "nueve",
+    ];
+    this.tenToSixteen = [
+      "diez",
+      "once",
+      "doce",
+      "trece",
+      "catorce",
+      "quince",
+      "dieciséis",
+    ];
+    this.tens = [
+      "treinta",
+      "cuarenta",
+      "cincuenta",
+      "sesenta",
+      "setenta",
+      "ochenta",
+      "noventa",
+    ];
+    this.elMessage = document.getElementById("message");
+    this.addListener();
+  }
 
-  formCrear.addEventListener("submit", (e) => {
-    e.preventDefault();
-    capturarDatos();
-  });
+  addListener() {
+    let elInput = document.getElementById("field-number");
+    elInput.addEventListener("keyup", () => {
+      if (elInput.value !== "") {
+        this.convertToText(elInput.value);
+      } else {
+        this.elMessage.innerText = "";
+      }
+    });
+  }
 
-  const capturarDatos = () => {
-    const numCap = num.value.trim();
-    console.log(
-      numCap.length
-        ? pintarNum(numCap)
-        : alert("Ingresa un numero a convertir!")
-    );
-  };
-  const pintarNum = (numHtml) => {
-    const strongHtml = `
-    <strong>${numHtml}</strong><br/>
-    `;
-    listNum.innerHTML += strongHtml;
-    formCrear.reset();
-  };
-});
+  convertToText(number) {
+    number = this.deleteZerosLeft(number);
+    if (!this.validateNumber(number)) {
+      this.elMessage.innerText = "Sólo se aceptan números.";
+      return;
+    }
+    this.elMessage.innerText = this.getName(number);
+  }
 
-// function Unidades(num) {
+  // Elimina los ceros a la izquierda
+  deleteZerosLeft(number) {
+    let i = 0;
+    let isZero = true;
+    for (i = 0; i < number.length; i++) {
+      if (number.charAt(i) != 0) {
+        isZero = false;
+        break;
+      }
+    }
+    return isZero ? "0" : number.substr(i);
+  }
 
-//     switch(num)
-//     {
-//         case 1: return 'UNO';
-//         case 2: return 'DOS';
-//         case 3: return 'TRES';
-//         case 4: return 'CUATRO';
-//         case 5: return 'CINCO';
-//         case 6: return 'SEIS';
-//         case 7: return 'SIETE';
-//         case 8: return 'OCHO';
-//         case 9: return 'NUEVE';
-//     }
+  validateNumber(number) {
+    // Validar que la cadena sea un número y que no esté vacía
+    if (isNaN(number) || number === "") {
+      return false;
+    }
+    // Validar que no tenga punto decimal
+    if (number.indexOf(".") >= 0) {
+      return false;
+    }
+    // Validar que el número no sea negativo
+    if (number.indexOf("-") >= 0) {
+      return false;
+    }
+    return true;
+  }
 
-//     return '';
-// }//Unidades()
+  getName(number) {
+    number = this.deleteZerosLeft(number);
 
-// function Decenas(num){
+    if (number.length === 1) {
+      return this.getUnits(number);
+    }
+    if (number.length === 2) {
+      return this.getTens(number);
+    }
+    if (number.length === 3) {
+      return this.getHundreds(number);
+    }
+    if (number.length < 7) {
+      return this.getThousands(number);
+    }
+    if (number.length < 13) {
+      return this.getPeriod(number, 6, "millón");
+    }
+    if (number.length < 19) {
+      return this.getPeriod(number, 12, "billón");
+    }
+    return "Número demasiado grande.";
+  }
 
-//     decena = Math.floor(num/10);
-//     unidad = num - (decena * 10);
+  getUnits(number) {
+    let numberInt = parseInt(number);
+    return this.units[numberInt];
+  }
 
-//     switch(decena)
-//     {
-//         case 1:
-//             switch(unidad)
-//             {
-//                 case 0: return 'DIEZ';
-//                 case 1: return 'ONCE';
-//                 case 2: return 'DOCE';
-//                 case 3: return 'TRECE';
-//                 case 4: return 'CATORCE';
-//                 case 5: return 'QUINCE';
-//                 default: return 'DIECI' + Unidades(unidad);
-//             }
-//         case 2:
-//             switch(unidad)
-//             {
-//                 case 0: return 'VIENTE';
-//                 default: return 'VIENTE' + Unidades(unidad);
-//             }
-//         case 3: return DecenasY('TREINTA', unidad);
-//         case 4: return DecenasY('CUARENTA', unidad);
-//         case 5: return DecenasY('CINCUENTA', unidad);
-//         case 6: return DecenasY('SESENTA', unidad);
-//         case 7: return DecenasY('SETENTA', unidad);
-//         case 8: return DecenasY('OCHENTA', unidad);
-//         case 9: return DecenasY('NOVENTA', unidad);
-//         case 0: return Unidades(unidad);
-//     }
-// }//Unidades()
+  getTens(number) {
+    // Obtener las unidades
+    let units = number.charAt(1);
 
-// function DecenasY(strSin, numUnidades) {
-//     if (numUnidades > 0)
-//     return strSin + 'Y' + Unidades(numUnidades)
+    if (number < 17) {
+      return this.tenToSixteen[number - 10];
+    }
+    if (number < 20) {
+      return "dieci" + this.getUnits(units);
+    }
+    // Nombres especiales
+    switch (number) {
+      case "20":
+        return "veinte";
+      case "22":
+        return "veintidós";
+      case "23":
+        return "veintitrés";
+      case "26":
+        return "veintiséis";
+    }
+    if (number < 30) {
+      return "veinti" + this.getUnits(units);
+    }
+    let name = this.tens[number.charAt(0) - 3];
+    if (units > 0) {
+      name += " y " + this.getUnits(units);
+    }
+    return name;
+  }
 
-//     return strSin;
-// }//DecenasY()
+  getHundreds(number) {
+    let name = "";
+    // Obtener las centenas
+    let hundreds = number.charAt(0);
+    // Obtener las decenas y unidades
+    let tens = number.substr(1);
 
-// function Centenas(num) {
-//     centenas = Math.floor(num / 100);
-//     decenas = num - (centenas * 100);
+    if (number == 100) {
+      return "cien";
+    }
+    // Nombres especiales
+    switch (hundreds) {
+      case "1":
+        name = "ciento";
+        break;
+      case "5":
+        name = "quinientos";
+        break;
+      case "7":
+        name = "setecientos";
+        break;
+      case "9":
+        name = "novecientos";
+    }
+    if (name === "") {
+      name = this.getUnits(hundreds) + "cientos";
+    }
+    if (tens > 0) {
+      name += " " + this.getName(tens);
+    }
+    return name;
+  }
 
-//     switch(centenas)
-//     {
-//         case 1:
-//             if (decenas > 0)
-//                 return 'CIENTO'  + Decenas(decenas);
-//             return 'CIEN';
-//         case 2: return 'DOCIENTOS'  + Decenas(decenas);
-//         case 3: return “TRESCIENTOS ” + Decenas(decenas);
-//         case 4: return “CUATROCIENTOS ” + Decenas(decenas);
-//         case 5: return “QUINIENTOS ” + Decenas(decenas);
-//         case 6: return “SEISCIENTOS ” + Decenas(decenas);
-//         case 7: return “SETECIENTOS ” + Decenas(decenas);
-//         case 8: return “OCHOCIENTOS ” + Decenas(decenas);
-//         case 9: return “NOVECIENTOS ” + Decenas(decenas);
-//     }
+  getThousands(number) {
+    let name = "mil";
+    // Obtener cuantos dígitos están en los miles
+    let thousandsLength = number.length - 3;
+    // Obtener los miles
+    let thousands = number.substr(0, thousandsLength);
+    // Obtener las centenas, decenas y unidades
+    let hundreds = number.substr(thousandsLength);
 
-//     return Decenas(decenas);
-// }//Centenas()
+    if (thousands > 1) {
+      // Se reemplaza la palabra uno por un en numeros como 21000, 31000, 41000, etc.
+      name = this.getName(thousands).replace("uno", "un") + " mil";
+    }
+    if (hundreds > 0) {
+      name += " " + this.getName(hundreds);
+    }
+    return name;
+  }
 
-// function Seccion(num, divisor, strSingular, strPlural) {
-//     cientos = Math.floor(num / divisor)
-//     resto = num – (cientos * divisor)
+  // Obtiene periodos, por ejemplo: millones, billones, etc.
+  getPeriod(number, digitsToTheRight, periodName) {
+    let name = "un " + periodName;
+    // Obtener cuantos dígitos están dentro del periodo
+    let periodLength = number.length - digitsToTheRight;
+    // Obtener los dítos del periodo
+    let periodDigits = number.substr(0, periodLength);
+    // Obtener los digitos previos al periodo
+    let previousDigits = number.substr(periodLength);
 
-//     letras = “”;
+    if (periodDigits > 1) {
+      name =
+        this.getName(periodDigits).replace("uno", "un") +
+        " " +
+        periodName.replace("ó", "o") +
+        "es";
+    }
+    if (previousDigits > 0) {
+      name += " " + this.getName(previousDigits);
+    }
+    return name;
+  }
+}
 
-//     if (cientos > 0)
-//         if (cientos > 1)
-//             letras = Centenas(cientos) + ” ” + strPlural;
-//         else
-//             letras = strSingular;
-
-//     if (resto > 0)
-//         letras += “”;
-
-//     return letras;
-// }//Seccion()
-
-// function Miles(num) {
-//     divisor = 1000;
-//     cientos = Math.floor(num / divisor)
-//     resto = num – (cientos * divisor)
-
-//     strMiles = Seccion(num, divisor, “UN MIL”, “MIL”);
-//     strCentenas = Centenas(resto);
-
-//     if(strMiles == “”)
-//         return strCentenas;
-
-//     return strMiles + ” ” + strCentenas;
-// }//Miles()
-
-// function Millones(num) {
-//     divisor = 1000000;
-//     cientos = Math.floor(num / divisor)
-//     resto = num – (cientos * divisor)
-
-//     strMillones = Seccion(num, divisor, “UN MILLON DE”, “MILLONES DE”);
-//     strMiles = Miles(resto);
-
-//     if(strMillones == “”)
-//         return strMiles;
-
-//     return strMillones + ” ” + strMiles;
-// }//Millones()
-
-// function NumeroALetras(num) {
-//     var data = {
-//         numero: num,
-//         enteros: Math.floor(num),
-//         centavos: (((Math.round(num * 100)) – (Math.floor(num) * 100))),
-//         letrasCentavos: “”,
-//         letrasMonedaPlural: 'Córdobas',//“PESOS”, 'Dólares', 'Bolívares', 'etcs'
-//         letrasMonedaSingular: 'Córdoba', //“PESO”, 'Dólar', 'Bolivar', 'etc'
-
-//         letrasMonedaCentavoPlural: “CENTAVOS”,
-//         letrasMonedaCentavoSingular: “CENTAVO”
-//     };
-
-//     if (data.centavos > 0) {
-//         data.letrasCentavos = “CON ” + (function (){
-//             if (data.centavos == 1)
-//                 return Millones(data.centavos) + ” ” + data.letrasMonedaCentavoSingular;
-//             else
-//                 return Millones(data.centavos) + ” ” + data.letrasMonedaCentavoPlural;
-//             })();
-//     };
-
-//     if(data.enteros == 0)
-//         return “CERO ” + data.letrasMonedaPlural + ” ” + data.letrasCentavos;
-//     if (data.enteros == 1)
-//         return Millones(data.enteros) + ” ” + data.letrasMonedaSingular + ” ” + data.letrasCentavos;
-//     else
-//         return Millones(data.enteros) + ” ” + data.letrasMonedaPlural + ” ” + data.letrasCentavos;
-// }/
+new Converter();

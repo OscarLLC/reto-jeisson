@@ -10,22 +10,20 @@
       integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
       crossorigin="anonymous"
     />
+    <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <div style="margin-top: 90px">
-      <h1 style="text-align: center">RETO JEISSON</h1>
-      <p style="text-align: center">Ingresa el numero a convertir</p>
-      <form style="text-align: center" id="formNum" action="">
-        <input type="text" id="num" />
-        <button class="btn btn-primary" id="btn-conver">CONVERTIR</button>
+    <div class="root">
+      <h1>RETO JEISSON</h1>
+      <form class="form" action="#" onsubmit="event.preventDefault();">
+        <div style="text-align: center">
+          <strong>Convetidor de numeros a letras!</strong>
+        </div>
+        <label for="field-number">Ingresa el numero</label>
+        <input type="text" id="field-number" autocomplete="off" />
+        <p id="message"></p>
       </form>
-      <ul class="listNum">
-        <li style="list-style: none; text-align: center">
-          <strong id="listNum"></strong>
-        </li>
-      </ul>
     </div>
-
     <script src="js.js"></script>
   </body>
 </html>
